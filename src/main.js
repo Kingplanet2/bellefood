@@ -711,6 +711,15 @@ function initCursor() {
    SCROLL REVEAL
 ─────────────────────────────────────────────*/
 function initScrollReveal() {
+  // On mobile — show all reveal elements immediately
+  if (window.innerWidth <= 768) {
+    document.querySelectorAll('.reveal').forEach(el => {
+      el.classList.add('visible');
+    });
+    return;
+  }
+
+  // Desktop — use IntersectionObserver
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) e.target.classList.add('visible');
@@ -719,7 +728,6 @@ function initScrollReveal() {
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 }
-
 /* ─────────────────────────────────────────────
    NAV SCROLL STYLE
 ─────────────────────────────────────────────*/
@@ -735,14 +743,19 @@ function initNavScroll() {
    HERO GSAP ENTRANCE
 ─────────────────────────────────────────────*/
 function initHeroAnimation() {
-  // Force elements visible immediately as fallback
-  const heroEls = ['#hero-logo', '#hero-tagline', '#hero-cta', '#hero-stats'];
-  heroEls.forEach(sel => {
-    const el = document.querySelector(sel);
-    if (el) el.style.opacity = '0';
-  });
+  // On mobile — skip GSAP entirely, just show everything immediately
+  if (window.innerWidth <= 768) {
+    ['#hero-logo','#hero-tagline','#hero-cta','#hero-stats'].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      }
+    });
+    return;
+  }
 
-  // Small timeout ensures DOM + GSAP are both fully ready
+  // Desktop — run full GSAP animation
   setTimeout(() => {
     gsap.to('#hero-logo', { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', delay: 0.1 });
     gsap.to('#hero-tagline', { opacity: 1, duration: 1, ease: 'power2.out', delay: 0.4 });
@@ -871,10 +884,19 @@ function initMobileNav() {
 
   window.addEventListener('scroll', () => {
     let current = 'hero';
+    let maxOffset = -Infinity;
+    
+    // Find the section with the highest offsetTop that's still visible
     Object.keys(sectionMap).forEach(id => {
       const el = document.getElementById(id);
-      if (el && window.scrollY >= el.offsetTop - 200) current = id;
+      if (el && window.scrollY >= el.offsetTop - 200) {
+        if (el.offsetTop > maxOffset) {
+          maxOffset = el.offsetTop;
+          current = id;
+        }
+      }
     });
+    
     document.querySelectorAll('.mobile-nav-item').forEach(el => el.classList.remove('active'));
     const activeId = sectionMap[current];
     if (activeId) document.getElementById(activeId)?.classList.add('active');

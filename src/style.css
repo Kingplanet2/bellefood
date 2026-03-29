@@ -1219,14 +1219,20 @@ footer {
 #mobile-cart-badge.visible { display: flex; }
 
 /* ============================================================
-   MOBILE SAFETY — ensure hero is always visible
+   MOBILE SAFETY — force all animated elements visible
    ============================================================ */
 @media(max-width: 768px) {
+  #hero-logo,
+  #hero-tagline,
+  #hero-cta,
+  #hero-stats,
   .hero-logo,
   .hero-tagline,
   .hero-cta-group,
-  .hero-stats {
+  .hero-stats,
+  .reveal {
     opacity: 1 !important;
     transform: none !important;
+    transition: none !important;
   }
 }
