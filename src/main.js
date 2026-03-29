@@ -383,7 +383,6 @@ function buildMenuGrid(category, gridId) {
           <img
             src="${imgUrl}"
             alt="${item.name}"
-            loading="lazy"
             onerror="this.parentElement.innerHTML='<div class=card-img-placeholder>${item.emoji}</div>'"
           />
         </div>
@@ -884,22 +883,25 @@ function initMobileNav() {
 
   window.addEventListener('scroll', () => {
     let current = 'hero';
-    let maxOffset = -Infinity;
     
-    // Find the section with the highest offsetTop that's still visible
+    // Check each section and find which one is currently in view
     Object.keys(sectionMap).forEach(id => {
       const el = document.getElementById(id);
-      if (el && window.scrollY >= el.offsetTop - 200) {
-        if (el.offsetTop > maxOffset) {
-          maxOffset = el.offsetTop;
-          current = id;
-        }
+      if (!el) return;
+      
+      // If we've scrolled past this section's top (with 300px buffer), mark it as current
+      if (window.scrollY >= el.offsetTop - 300) {
+        current = id;
       }
     });
     
+    // Update active nav item
     document.querySelectorAll('.mobile-nav-item').forEach(el => el.classList.remove('active'));
     const activeId = sectionMap[current];
-    if (activeId) document.getElementById(activeId)?.classList.add('active');
+    if (activeId) {
+      const activeNav = document.getElementById(activeId);
+      if (activeNav) activeNav.classList.add('active');
+    }
   });
 }
 
