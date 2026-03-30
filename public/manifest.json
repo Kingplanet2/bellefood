@@ -1,0 +1,36 @@
+{
+  "name": "Belle Food",
+  "short_name": "BelleFood",
+  "description": "24/7 Fresh Nigerian Food — Order Online",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E8400A",
+  "theme_color": "#E8400A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
