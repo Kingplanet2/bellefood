@@ -573,23 +573,6 @@ async function confirmOrderAfterPayment(reference) {
   }
 }
 
-  // Show success screen
-  const ss = document.getElementById('success-screen');
-  ss.classList.add('visible');
-  document.body.style.overflow = '';
-  launchConfetti();
-  saveOrderToHistory();
-
-  // Clear cart after save
-  setTimeout(() => {
-    cart = {};
-    updateCartUI();
-    document.getElementById('cust-name').value = '';
-    document.getElementById('cust-phone').value = '';
-    document.getElementById('cust-address').value = '';
-  }, 500);
-}
-
 function closeSuccess() {
   document.getElementById('success-screen').classList.remove('visible');
   // Show order status overlay
