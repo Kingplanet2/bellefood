@@ -489,11 +489,89 @@ function placeOrder() {
   const name = document.getElementById('cust-name').value.trim();
   const phone = document.getElementById('cust-phone').value.trim();
   const addr = document.getElementById('cust-address').value.trim();
+  const noteEl = document.getElementById('cust-note');
+  const note = noteEl ? noteEl.value.trim() : '';
 
   if (!name) { showToast('⚠️ Please enter your name.'); return; }
   if (!phone) { showToast('⚠️ Please enter your phone number.'); return; }
   if (!addr) { showToast('⚠️ Please enter your delivery address.'); return; }
   if (getCartCount() === 0) { showToast('⚠️ Your cart is empty!'); return; }
+
+  window.pendingOrder = {
+    customer: { name, phone, address: addr, note },
+    items: Object.values(cart).map(item => ({
+      name: item.name,
+      emoji: item.emoji,
+      price: item.price,
+      qty: item.qty,
+    })),
+    total: getCartTotal(),
+  };
+
+  const handler = PaystackPop.setup({
+    key: 'pk_test_2f8c5eefa84731b078a0307fafd7be86ccf195fe',
+    email: phone + '@bellefood.com',
+    amount: getCartTotal() * 100,
+    currency: 'NGN',
+    ref: 'BF_' + Date.now(),
+    metadata: {
+      custom_fields: [
+        { display_name: 'Customer Name', variable_name: 'name', value: name },
+        { display_name: 'Phone', variable_name: 'phone', value: phone },
+        { display_name: 'Address', variable_name: 'address', value: addr },
+      ]
+    },
+    callback: function(response) {
+      confirmOrderAfterPayment(response.reference);
+    },
+    onClose: function() {
+      showToast('⚠️ Payment cancelled. Your cart is still saved.');
+    }
+  });
+
+  handler.openIframe();
+}
+
+async function confirmOrderAfterPayment(reference) {
+  try {
+    showToast('⏳ Confirming your payment...');
+
+    const orderData = {
+      ...window.pendingOrder,
+      paymentReference: reference,
+      paymentStatus: 'paid',
+    };
+
+    const response = await fetch('https://bellefood-backend.onrender.com/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showToast('✅ Payment confirmed! Order placed.');
+      saveOrderToHistory();
+      const ss = document.getElementById('success-screen');
+      ss.classList.add('visible');
+      document.body.style.overflow = '';
+      launchConfetti();
+      setTimeout(() => {
+        cart = {};
+        updateCartUI();
+        document.getElementById('cust-name').value = '';
+        document.getElementById('cust-phone').value = '';
+        document.getElementById('cust-address').value = '';
+      }, 500);
+    } else {
+      showToast('❌ Order could not be saved. Call us directly.');
+    }
+  } catch (err) {
+    console.error('Order error:', err);
+    showToast('❌ Could not reach server. Please call us.');
+  }
+}
 
   // Show success screen
   const ss = document.getElementById('success-screen');
