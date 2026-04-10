@@ -6,7 +6,7 @@ gsap.registerPlugin(ScrollTrigger);
    CONFIG — Change these to match your setup
 ─────────────────────────────────────────────*/
 const PAYSTACK_PUBLIC_KEY = 'pk_test_REPLACE_WITH_YOUR_KEY';
-const API_BASE = 'http://localhost:3000/api'; // Change to your backend URL when deployed
+const API_BASE = 'https://bellefood-project.onrender.com/api';
 
 /* ─────────────────────────────────────────────
    SCREEN NAVIGATION
