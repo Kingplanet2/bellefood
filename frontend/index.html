@@ -1,13 +1,368 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Belle Food — 24/7 Fresh Food, Always</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/src/style.css"/>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
+<meta name="theme-color" content="#E8400A"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="BelleFood"/>
+</head>
+<body>
+
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<div id="toast-container"></div>
+
+<!-- TOP BAR -->
+<header id="top-bar">
+  <div class="top-bar-inner">
+    <div class="nav-logo"><span>Belle</span><span>Food</span></div>
+    <button class="top-bar-cart-btn" onclick="navigateTo('cart')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <span id="cart-count-top"></span>
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════
+     HOME SCREEN
+════════════════════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero-wrap">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-bg-gradient"></div>
+    <div class="hero-food-orbs">
+      <span class="food-orb" style="left:8%;top:20%;--dur:9s;--delay:0s;font-size:2.8rem">🍛</span>
+      <span class="food-orb" style="right:10%;top:15%;--dur:7s;--delay:-2s;font-size:3.5rem">🍗</span>
+      <span class="food-orb" style="left:5%;bottom:30%;--dur:11s;--delay:-4s;font-size:2.2rem">🥘</span>
+      <span class="food-orb" style="right:6%;bottom:25%;--dur:8s;--delay:-1s;font-size:3rem">🫙</span>
+      <span class="food-orb" style="left:20%;top:10%;--dur:10s;--delay:-3s;font-size:2rem">🌶️</span>
+      <span class="food-orb" style="right:22%;bottom:15%;--dur:6s;--delay:-5s;font-size:2.5rem">🍖</span>
+      <span class="food-orb" style="left:50%;top:8%;--dur:12s;--delay:-2s;font-size:1.8rem">✨</span>
+      <span class="food-orb" style="left:35%;bottom:20%;--dur:7.5s;--delay:-6s;font-size:2.2rem">🍹</span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero-tag">🔥 Lagos Premium Food</div>
+      <h1 class="hero-logo" id="hero-logo">
+        <span class="belle">Belle</span>
+        <span class="food">Food</span>
+      </h1>
+      <p class="hero-tagline" id="hero-tagline">
+        <strong>24/7 Fresh Food, Always</strong><br>
+        Real Nigerian taste, delivered with heat and soul.
+      </p>
+      <div class="hero-cta-group" id="hero-cta">
+        <button class="btn-primary" onclick="navigateTo('menu')">🍽️ Order Now</button>
+        <button class="btn-secondary" onclick="navigateTo('cart')">View Cart</button>
+      </div>
+      <div class="hero-stats" id="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">42.6K</div>
+          <div class="hero-stat-label">Followers</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">24/7</div>
+          <div class="hero-stat-label">Always Open</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">100%</div>
+          <div class="hero-stat-label">Fresh & Hot</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHEF SECTION -->
+  <div class="chef-section" id="chef-section">
+    <div class="chef-parallax-wrap" id="chef-parallax">
+      <img src="/images/chef.jpg" alt="Belle Food Chef" class="chef-img" id="chef-img"
+        onerror="this.style.display='none'"/>
+      <div class="chef-overlay"></div>
+      <div class="chef-content">
+        <div class="chef-eyebrow">Meet The Kitchen</div>
+        <h2 class="chef-title">Made With<br><span>Real Hands.</span><br>Real Fire.</h2>
+        <p class="chef-sub">Every plate that leaves our kitchen carries love, heat, and the soul of Nigerian cooking.</p>
+        <button class="btn-primary" onclick="navigateTo('menu')">🍽️ See Our Menu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     MENU SCREEN
+════════════════════════════ -->
+<div class="screen" id="screen-menu">
+  <div class="screen-scroll">
+    <div class="screen-header">
+      <h2 class="screen-title">Our <span>Menu</span></h2>
+      <p class="screen-sub">Fresh food made with real love and fire.</p>
+    </div>
+    <div class="menu-tabs" id="menu-tabs">
+      <div class="tab-indicator" id="tab-indicator"></div>
+      <button class="menu-tab active" data-tab="main" onclick="switchTab(this,'main')">🍛 Mains</button>
+      <button class="menu-tab" data-tab="protein" onclick="switchTab(this,'protein')">🥩 Proteins</button>
+      <button class="menu-tab" data-tab="drinks" onclick="switchTab(this,'drinks')">🥤 Drinks</button>
+    </div>
+    <div class="menu-panel active" id="panel-main">
+      <div class="menu-grid" id="grid-main"></div>
+    </div>
+    <div class="menu-panel" id="panel-protein">
+      <div class="menu-grid" id="grid-protein"></div>
+    </div>
+    <div class="menu-panel" id="panel-drinks">
+      <div class="menu-grid" id="grid-drinks"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     CART SCREEN
+════════════════════════════ -->
+<div class="screen" id="screen-cart">
+  <div class="screen-scroll">
+    <div class="screen-header">
+      <h2 class="screen-title">Your <span>Cart</span></h2>
+      <p class="screen-sub">Review your items before paying.</p>
+    </div>
+    <div id="cart-items-list">
+      <div class="cart-empty-screen">
+        <div class="cart-empty-icon">🛒</div>
+        <div class="cart-empty-text">Your cart is empty</div>
+        <button class="btn-primary" style="margin-top:24px" onclick="navigateTo('menu')">Browse Menu</button>
+      </div>
+    </div>
+    <div id="cart-footer-bar" style="display:none">
+      <div class="cart-total-row">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-val" id="cart-subtotal">₦0</span>
+      </div>
+      <button class="btn-primary full-btn" onclick="navigateTo('order')">Proceed to Order →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     ORDER SCREEN
+════════════════════════════ -->
+<div class="screen" id="screen-order">
+  <div class="screen-scroll">
+    <div class="screen-header">
+      <h2 class="screen-title">Place <span>Order</span></h2>
+      <p class="screen-sub">Fill in your details and pay to confirm.</p>
+    </div>
+    <div class="order-form-wrap">
+      <div class="checkout-panel">
+        <div class="checkout-panel-title">📋 Your Details</div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="cust-name" placeholder="e.g. Amaka Johnson"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="cust-email" placeholder="e.g. amaka@gmail.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" class="form-input" id="cust-phone" placeholder="e.g. 0812 345 6789"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Delivery Address</label>
+          <textarea class="form-input" id="cust-address" placeholder="Enter your delivery address..."></textarea>
+        </div>
+      </div>
+
+      <div class="checkout-panel" style="margin-top:20px">
+        <div class="checkout-panel-title">🛒 Order Summary</div>
+        <div id="order-summary-items">
+          <div class="checkout-empty-msg">
+            <p>Your cart is empty.<br><strong>Add items from the menu.</strong></p>
+          </div>
+        </div>
+        <div id="order-total-row" style="display:none">
+          <div class="order-total">
+            <span class="order-total-label">Total</span>
+            <span class="order-total-val" id="order-total-display">₦0</span>
+          </div>
+        </div>
+        <button class="place-order-btn" id="pay-btn" onclick="initPaystack()" style="margin-top:20px">
+          💳 Pay & Place Order
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT SCREEN -->
+<div class="screen" id="screen-contact">
+  <div class="screen-scroll">
+    <div class="screen-header">
+      <h2 class="screen-title">Contact <span>Us</span></h2>
+      <p class="screen-sub">We're always available — 24/7, no exceptions.</p>
+    </div>
+
+    <!-- WhatsApp -->
+    <a href="https://wa.me/2349063584306" target="_blank" class="contact-card">
+      <div class="contact-icon" style="background:rgba(37,211,102,0.12);border-color:rgba(37,211,102,0.25);">
+        <svg viewBox="0 0 24 24" fill="#25D366" width="28" height="28">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.126 1.532 5.862L.063 23.12a.75.75 0 00.916.916l5.258-1.469A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 01-4.953-1.355l-.355-.212-3.68 1.027 1.027-3.68-.212-.355A9.713 9.713 0 012.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/>
+        </svg>
+      </div>
+      <div class="contact-info">
+        <div class="contact-label">WhatsApp Us</div>
+        <div class="contact-value">+234 906 358 4306</div>
+        <div class="contact-hint">Tap to chat instantly</div>
+      </div>
+      <div class="contact-arrow">→</div>
+    </a>
+
+    <!-- Instagram -->
+    <a href="https://instagram.com/bellefood01" target="_blank" class="contact-card">
+      <div class="contact-icon" style="background:rgba(225,48,108,0.12);border-color:rgba(225,48,108,0.25);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#E1306C" stroke-width="2" width="28" height="28">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <circle cx="12" cy="12" r="4"/>
+          <circle cx="17.5" cy="6.5" r="0.5" fill="#E1306C"/>
+        </svg>
+      </div>
+      <div class="contact-info">
+        <div class="contact-label">Instagram</div>
+        <div class="contact-value">@bellefood01</div>
+        <div class="contact-hint">42.6K followers — Follow us</div>
+      </div>
+      <div class="contact-arrow">→</div>
+    </a>
+
+    <!-- Address -->
+    <div class="contact-card" style="cursor:default">
+      <div class="contact-icon" style="background:rgba(232,64,10,0.12);border-color:rgba(232,64,10,0.25);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" width="28" height="28">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <div class="contact-info">
+        <div class="contact-label">Our Location</div>
+        <div class="contact-value">Opposite Abiola Court</div>
+        <div class="contact-hint">10 Chevron, Lagos</div>
+      </div>
+    </div>
+
+    <!-- Hours -->
+    <div class="contact-card" style="cursor:default">
+      <div class="contact-icon" style="background:rgba(245,166,35,0.12);border-color:rgba(245,166,35,0.25);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" width="28" height="28">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="contact-info">
+        <div class="contact-label">Opening Hours</div>
+        <div class="contact-value">Open 24/7</div>
+        <div class="contact-hint">We never close 🔥</div>
+      </div>
+    </div>
+
+    <!-- Order via WhatsApp CTA -->
+    <a href="https://wa.me/2349063584306?text=Hello%20BelleFood!%20I%20would%20like%20to%20place%20an%20order%20🍛" target="_blank" class="btn-primary" style="display:block;text-align:center;margin-top:8px;border-radius:var(--radius);padding:18px;">
+      💬 Order via WhatsApp
+    </a>
+
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div id="success-screen">
+  <canvas id="success-canvas"></canvas>
+  <div class="success-icon">🔥</div>
+  <h2 class="success-title">Order <span>Confirmed!</span></h2>
+  <p class="success-sub">Payment successful! Your order has been received.<br>We'll prepare it right away 🔥</p>
+  <button class="btn-primary" onclick="closeSuccess()">Track My Order 🚀</button>
+</div>
+
+<!-- STATUS OVERLAY -->
+<div id="status-overlay" style="display:none">
+  <div class="status-overlay-inner">
+    <div class="screen-header" style="margin-bottom:32px">
+      <h2 class="screen-title">Order <span>Status</span></h2>
+    </div>
+    <div class="status-tracker">
+      <div class="status-steps">
+        <div class="status-step done" id="step-1">
+          <div class="step-circle">📩</div>
+          <div class="step-label">Received</div>
+          <div class="status-connector"><div class="status-connector-fill" id="conn-1"></div></div>
+        </div>
+        <div class="status-step" id="step-2">
+          <div class="step-circle">👨‍🍳</div>
+          <div class="step-label">Preparing</div>
+          <div class="status-connector"><div class="status-connector-fill" id="conn-2"></div></div>
+        </div>
+        <div class="status-step" id="step-3">
+          <div class="step-circle">🔥</div>
+          <div class="step-label">Ready!</div>
+        </div>
+      </div>
+      <div class="status-message">
+        <p class="status-msg-text active" id="status-msg">Order received! We're on it.</p>
+        <p class="status-eta" id="status-eta">Estimated wait: 30–45 minutes</p>
+      </div>
+    </div>
+    <button class="btn-primary full-btn" style="margin-top:32px" onclick="closeStatusOverlay()">Back to Home</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav id="mobile-nav">
+  <button class="mobile-nav-item active" id="mnav-home" onclick="navigateTo('home')">
+    <div class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <span>Home</span>
+  </button>
+  <button class="mobile-nav-item" id="mnav-menu" onclick="navigateTo('menu')">
+    <div class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="4" rx="1"/></svg>
+    </div>
+    <span>Menu</span>
+  </button>
+  <button class="mobile-nav-item" id="mnav-cart" onclick="navigateTo('cart')">
+    <div class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span id="mobile-cart-badge"></span>
+    </div>
+    <span>Cart</span>
+  </button>
+  <button class="mobile-nav-item" id="mnav-order" onclick="navigateTo('order')">
+    <div class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </div>
+    <span>Order</span>
+  </button>
+<button class="mobile-nav-item" id="mnav-contact" onclick="navigateTo('contact')">
+    <div class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.29-1.29a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    </div>
+    <span>Contact</span>
+  </button>
+</nav>
+
+<script type="module" src="/src/main.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+</body>
 </html>

@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Belle Food — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   VARIABLES
+   ============================================================ */
+:root {
+  --orange: #E8400A;
+  --orange-glow: rgba(232,64,10,0.3);
+  --gold: #F5A623;
+  --dark: #0D0D0D;
+  --dark-2: #111111;
+  --dark-3: #181818;
+  --dark-4: #222222;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --text: #FFFFFF;
+  --text-muted: rgba(255,255,255,0.5);
+  --font-head: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius: 14px;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; }
+body { background:var(--dark); color:var(--text); font-family:var(--font-body); min-height:100vh; }
+a { text-decoration:none; color:inherit; }
+button { border:none; background:none; font-family:inherit; cursor:pointer; }
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:var(--dark); }
+::-webkit-scrollbar-thumb { background:var(--orange); border-radius:2px; }
+
+/* ============================================================
+   LOGIN SCREEN
+   ============================================================ */
+#login-screen {
+  position:fixed; inset:0; z-index:1000;
+  background:var(--dark);
+  display:flex; align-items:center; justify-content:center;
+  padding:24px;
+}
+#login-screen.hidden { display:none; }
+.login-box {
+  background:var(--dark-2);
+  border:1px solid var(--glass-border);
+  border-radius:24px;
+  padding:48px 40px;
+  width:100%; max-width:420px;
+  text-align:center;
+}
+.login-logo {
+  font-family:var(--font-head);
+  font-size:2.5rem; font-weight:900;
+  margin-bottom:8px;
+}
+.login-logo span { color:var(--orange); }
+.login-subtitle {
+  color:var(--text-muted); font-size:0.875rem;
+  margin-bottom:40px;
+}
+.login-input {
+  width:100%; background:rgba(255,255,255,0.05);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius); padding:14px 18px;
+  color:var(--text); font-family:var(--font-body);
+  font-size:1rem; outline:none; margin-bottom:16px;
+  transition:border-color 0.2s;
+}
+.login-input:focus { border-color:var(--orange); }
+.login-input::placeholder { color:rgba(255,255,255,0.3); }
+.login-btn {
+  width:100%; background:var(--orange); color:white;
+  padding:16px; border-radius:var(--radius);
+  font-family:var(--font-head); font-weight:800;
+  font-size:1rem; transition:transform 0.2s, box-shadow 0.2s;
+  box-shadow:0 4px 20px var(--orange-glow);
+}
+.login-btn:hover { transform:translateY(-2px); }
+.login-error {
+  color:#ef4444; font-size:0.825rem;
+  margin-top:12px; display:none;
+}
+.login-error.show { display:block; }
+
+/* ============================================================
+   ADMIN LAYOUT
+   ============================================================ */
+#admin-app { display:none; min-height:100vh; }
+#admin-app.visible { display:flex; }
+
+/* SIDEBAR */
+.sidebar {
+  width:240px; min-height:100vh;
+  background:var(--dark-2);
+  border-right:1px solid var(--glass-border);
+  display:flex; flex-direction:column;
+  position:fixed; top:0; left:0; bottom:0;
+  z-index:100;
+}
+.sidebar-logo {
+  padding:24px 20px;
+  border-bottom:1px solid var(--glass-border);
+  font-family:var(--font-head); font-size:1.3rem; font-weight:900;
+}
+.sidebar-logo span { color:var(--orange); }
+.sidebar-tag {
+  font-size:0.65rem; font-weight:600;
+  letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text-muted); display:block; margin-top:2px;
+}
+.sidebar-nav { flex:1; padding:16px 12px; }
+.nav-item {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 16px; border-radius:12px;
+  color:var(--text-muted); font-family:var(--font-head);
+  font-weight:600; font-size:0.875rem;
+  transition:background 0.2s, color 0.2s;
+  margin-bottom:4px; cursor:pointer; width:100%;
+  text-align:left;
+}
+.nav-item:hover { background:var(--glass); color:var(--text); }
+.nav-item.active { background:rgba(232,64,10,0.12); color:var(--orange); }
+.nav-item svg { width:18px; height:18px; flex-shrink:0; }
+.sidebar-footer {
+  padding:16px 12px;
+  border-top:1px solid var(--glass-border);
+}
+.logout-btn {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 16px; border-radius:12px;
+  color:var(--text-muted); font-family:var(--font-head);
+  font-weight:600; font-size:0.875rem;
+  transition:background 0.2s, color 0.2s;
+  cursor:pointer; width:100%;
+}
+.logout-btn:hover { background:rgba(239,68,68,0.1); color:#ef4444; }
+
+/* MAIN CONTENT */
+.main-content {
+  margin-left:240px; flex:1;
+  padding:32px; min-height:100vh;
+}
+
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+.admin-topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:32px;
+}
+.page-title {
+  font-family:var(--font-head); font-size:1.8rem;
+  font-weight:900; letter-spacing:-0.5px;
+}
+.page-title span { color:var(--orange); }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.refresh-btn {
+  background:var(--glass); border:1px solid var(--glass-border);
+  padding:10px 20px; border-radius:10px;
+  color:var(--text-muted); font-family:var(--font-head);
+  font-weight:600; font-size:0.825rem;
+  transition:background 0.2s, color 0.2s;
+}
+.refresh-btn:hover { background:rgba(232,64,10,0.1); color:var(--orange); }
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ============================================================
+   STAT CARDS
+   ============================================================ */
+.stats-grid {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:16px; margin-bottom:32px;
+}
+.stat-card {
+  background:var(--dark-2); border:1px solid var(--glass-border);
+  border-radius:var(--radius); padding:20px;
+}
+.stat-label { font-size:0.72rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+.stat-value { font-family:var(--font-head); font-size:2rem; font-weight:900; line-height:1; }
+.stat-value.orange { color:var(--orange); }
+.stat-value.gold { color:var(--gold); }
+.stat-value.green { color:var(--success); }
+.stat-value.blue { color:var(--info); }
+.stat-sub { font-size:0.75rem; color:var(--text-muted); margin-top:6px; }
+
+/* ============================================================
+   ORDERS TABLE
+   ============================================================ */
+.section-card {
+  background:var(--dark-2); border:1px solid var(--glass-border);
+  border-radius:var(--radius); overflow:hidden; margin-bottom:24px;
+}
+.section-card-header {
+  padding:20px 24px; border-bottom:1px solid var(--glass-border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.section-card-title {
+  font-family:var(--font-head); font-weight:800; font-size:1rem;
+}
+.orders-table { width:100%; border-collapse:collapse; }
+.orders-table th {
+  padding:12px 16px; text-align:left;
+  font-size:0.7rem; font-weight:600;
+  letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text-muted);
+  border-bottom:1px solid var(--glass-border);
+}
+.orders-table td {
+  padding:14px 16px; font-size:0.875rem;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  vertical-align:middle;
+}
+.orders-table tr:last-child td { border-bottom:none; }
+.orders-table tr:hover td { background:rgba(255,255,255,0.02); }
+
+/* STATUS BADGES */
+.status-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 12px; border-radius:100px;
+  font-family:var(--font-head); font-weight:600;
+  font-size:0.7rem; letter-spacing:0.05em; text-transform:uppercase;
+}
+.status-received { background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.2); }
+.status-preparing { background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.2); }
+.status-ready { background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.2); }
+.status-delivered { background:rgba(107,114,128,0.15); color:#9ca3af; border:1px solid rgba(107,114,128,0.2); }
+.status-cancelled { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.2); }
+
+/* STATUS SELECT */
+.status-select {
+  background:var(--dark-3); border:1px solid var(--glass-border);
+  border-radius:8px; padding:6px 10px;
+  color:var(--text); font-family:var(--font-head);
+  font-size:0.78rem; font-weight:600; cursor:pointer;
+  outline:none; transition:border-color 0.2s;
+}
+.status-select:focus { border-color:var(--orange); }
+
+/* ORDER ITEMS TOOLTIP */
+.order-items-list {
+  font-size:0.78rem; color:var(--text-muted);
+  max-width:200px; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
+}
+
+/* ============================================================
+   MENU MANAGER
+   ============================================================ */
+.menu-filter-tabs {
+  display:flex; gap:8px; margin-bottom:24px;
+}
+.filter-tab {
+  padding:8px 20px; border-radius:100px;
+  background:var(--glass); border:1px solid var(--glass-border);
+  color:var(--text-muted); font-family:var(--font-head);
+  font-weight:600; font-size:0.825rem;
+  transition:background 0.2s, color 0.2s, border-color 0.2s;
+}
+.filter-tab.active { background:var(--orange); border-color:var(--orange); color:white; }
+.filter-tab:hover:not(.active) { background:rgba(255,255,255,0.08); color:var(--text); }
+
+.menu-items-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr));
+  gap:16px;
+}
+.menu-item-card {
+  background:var(--dark-2); border:1px solid var(--glass-border);
+  border-radius:var(--radius); overflow:hidden;
+  transition:border-color 0.2s;
+}
+.menu-item-card:hover { border-color:rgba(232,64,10,0.2); }
+.menu-item-img {
+  width:100%; height:140px; object-fit:cover;
+  display:block;
+}
+.menu-item-emoji-placeholder {
+  width:100%; height:140px;
+  background:linear-gradient(135deg, var(--dark-3), var(--dark-4));
+  display:flex; align-items:center; justify-content:center;
+  font-size:3.5rem;
+}
+.menu-item-body { padding:16px; }
+.menu-item-name {
+  font-family:var(--font-head); font-weight:700;
+  font-size:0.95rem; margin-bottom:4px;
+}
+.menu-item-desc { font-size:0.78rem; color:var(--text-muted); margin-bottom:12px; }
+.menu-item-footer {
+  display:flex; align-items:center;
+  justify-content:space-between; gap:8px;
+}
+.price-input {
+  background:var(--dark-3); border:1px solid var(--glass-border);
+  border-radius:8px; padding:8px 12px;
+  color:var(--gold); font-family:var(--font-head);
+  font-weight:700; font-size:0.9rem;
+  width:120px; outline:none;
+  transition:border-color 0.2s;
+}
+.price-input:focus { border-color:var(--orange); }
+.item-actions { display:flex; gap:8px; }
+.save-price-btn {
+  background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.2);
+  color:#4ade80; padding:7px 14px; border-radius:8px;
+  font-family:var(--font-head); font-weight:600; font-size:0.75rem;
+  transition:background 0.2s;
+}
+.save-price-btn:hover { background:rgba(34,197,94,0.25); }
+.upload-img-btn {
+  background:rgba(232,64,10,0.12); border:1px solid rgba(232,64,10,0.2);
+  color:var(--orange); padding:7px 14px; border-radius:8px;
+  font-family:var(--font-head); font-weight:600; font-size:0.75rem;
+  transition:background 0.2s; cursor:pointer;
+}
+.upload-img-btn:hover { background:rgba(232,64,10,0.22); }
+.toggle-avail-btn {
+  padding:7px 10px; border-radius:8px;
+  font-family:var(--font-head); font-weight:600; font-size:0.75rem;
+  transition:background 0.2s;
+}
+.toggle-avail-btn.available { background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.2); color:#4ade80; }
+.toggle-avail-btn.unavailable { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.2); color:#f87171; }
+.hidden-file-input { display:none; }
+
+/* ============================================================
+   LOADING & EMPTY STATES
+   ============================================================ */
+.loading-state {
+  text-align:center; padding:60px 24px;
+  color:var(--text-muted); font-size:0.9rem;
+}
+.loading-spinner {
+  display:inline-block; width:32px; height:32px;
+  border:3px solid rgba(232,64,10,0.2);
+  border-top-color:var(--orange);
+  border-radius:50%; animation:spin 0.8s linear infinite;
+  margin-bottom:12px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.empty-state {
+  text-align:center; padding:60px 24px;
+  color:var(--text-muted);
+}
+.empty-icon { font-size:3rem; margin-bottom:12px; opacity:0.4; }
+.empty-text { font-family:var(--font-head); font-weight:600; font-size:1rem; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#admin-toast {
+  position:fixed; bottom:24px; right:24px; z-index:9999;
+  background:var(--dark-3); border:1px solid var(--glass-border);
+  border-left:3px solid var(--orange);
+  border-radius:12px; padding:14px 20px;
+  font-size:0.875rem; font-weight:500;
+  max-width:300px; opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.3s, transform 0.3s;
+  pointer-events:none;
+}
+#admin-toast.show { opacity:1; transform:translateY(0); }
+#admin-toast.success { border-left-color:var(--success); }
+#admin-toast.error { border-left-color:var(--danger); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:1024px) {
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+}
+@media(max-width:768px) {
+  .sidebar { transform:translateX(-100%); transition:transform 0.3s; }
+  .sidebar.open { transform:translateX(0); }
+  .main-content { margin-left:0; padding:20px 16px; }
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .orders-table { font-size:0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════
+     LOGIN SCREEN
+════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Belle<span>Food</span></div>
+    <div class="login-subtitle">Admin Panel — Restricted Access</div>
+    <input type="password" class="login-input" id="admin-password-input"
+      placeholder="Enter admin password"
+      onkeypress="if(event.key==='Enter') handleLogin()"/>
+    <button class="login-btn" onclick="handleLogin()">🔐 Access Admin Panel</button>
+    <div class="login-error" id="login-error">❌ Wrong password. Try again.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     ADMIN APP
+════════════════════════════ -->
+<div id="admin-app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      Belle<span>Food</span>
+      <span class="sidebar-tag">Admin Panel</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" id="nav-orders" onclick="switchTab('orders')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Orders
+        <span id="orders-badge" style="margin-left:auto;background:var(--orange);color:white;padding:2px 8px;border-radius:100px;font-size:0.65rem;font-weight:800;display:none"></span>
+      </button>
+      <button class="nav-item" id="nav-menu" onclick="switchTab('menu')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
+        Menu Manager
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="handleLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- ─── DASHBOARD TAB ─── -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="admin-topbar">
+        <div class="page-title">Dashboard <span>Overview</span></div>
+        <div class="topbar-right">
+          <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value orange" id="stat-total">—</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value gold" id="stat-revenue">—</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Orders</div>
+          <div class="stat-value green" id="stat-active">—</div>
+          <div class="stat-sub">Received + Preparing</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Today's Orders</div>
+          <div class="stat-value blue" id="stat-today">—</div>
+          <div class="stat-sub">Last 24 hours</div>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">🔴 Live Orders</div>
+          <button class="refresh-btn" onclick="loadOrders()">↻ Refresh</button>
+        </div>
+        <div id="dashboard-orders-wrap">
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <div>Loading orders...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ORDERS TAB ─── -->
+    <div class="tab-content" id="tab-orders">
+      <div class="admin-topbar">
+        <div class="page-title">All <span>Orders</span></div>
+        <div class="topbar-right">
+          <button class="refresh-btn" onclick="loadOrders()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <div id="all-orders-wrap">
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <div>Loading orders...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── MENU TAB ─── -->
+    <div class="tab-content" id="tab-menu">
+      <div class="admin-topbar">
+        <div class="page-title">Menu <span>Manager</span></div>
+        <div class="topbar-right">
+          <button class="refresh-btn" onclick="loadMenuItems()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="menu-filter-tabs">
+        <button class="filter-tab active" onclick="filterMenu('all', this)">All Items</button>
+        <button class="filter-tab" onclick="filterMenu('main', this)">🍛 Mains</button>
+        <button class="filter-tab" onclick="filterMenu('protein', this)">🥩 Proteins</button>
+        <button class="filter-tab" onclick="filterMenu('drinks', this)">🥤 Drinks</button>
+      </div>
+
+      <div class="menu-items-grid" id="menu-items-grid">
+        <div class="loading-state" style="grid-column:1/-1">
+          <div class="loading-spinner"></div>
+          <div>Loading menu items...</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="admin-toast"></div>
+
+<script>
+/* ─────────────────────────────────────────────
+   CONFIG
+─────────────────────────────────────────────*/
+const API_BASE = 'http://localhost:3000/api';
+let adminPassword = '';
+let allOrders = [];
+let allMenuItems = [];
+let currentMenuFilter = 'all';
+
+/* ─────────────────────────────────────────────
+   LOGIN
+─────────────────────────────────────────────*/
+function handleLogin() {
+  const input = document.getElementById('admin-password-input').value.trim();
+  if (!input) return;
+
+  // Test password against backend
+  fetch(`${API_BASE}/orders`, {
+    headers: { 'x-admin-password': input }
+  })
+  .then(res => {
+    if (res.ok || res.status === 200) {
+      adminPassword = input;
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('admin-app').classList.add('visible');
+      loadDashboard();
+      loadMenuItems();
+    } else {
+      document.getElementById('login-error').classList.add('show');
+    }
+  })
+  .catch(() => {
+    // If backend is offline, allow login with hardcoded password for demo
+    if (input === 'bellefood2025') {
+      adminPassword = input;
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('admin-app').classList.add('visible');
+      loadDashboard();
+      loadMenuItems();
+    } else {
+      document.getElementById('login-error').classList.add('show');
+    }
+  });
+}
+
+function handleLogout() {
+  adminPassword = '';
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('admin-app').classList.remove('visible');
+  document.getElementById('admin-password-input').value = '';
+  document.getElementById('login-error').classList.remove('show');
+}
+
+/* ─────────────────────────────────────────────
+   TAB SWITCHING
+─────────────────────────────────────────────*/
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+  document.getElementById(`nav-${tabName}`).classList.add('active');
+
+  if (tabName === 'orders') loadOrders();
+  if (tabName === 'menu') loadMenuItems();
+  if (tabName === 'dashboard') loadDashboard();
+}
+
+/* ─────────────────────────────────────────────
+   LOAD DASHBOARD
+─────────────────────────────────────────────*/
+async function loadDashboard() {
+  await loadOrders();
+
+  // Calculate stats
+  const total = allOrders.length;
+  const revenue = allOrders.reduce((s, o) => s + o.total, 0);
+  const active = allOrders.filter(o => ['received','preparing'].includes(o.status)).length;
+  const today = allOrders.filter(o => {
+    const orderDate = new Date(o.createdAt);
+    const now = new Date();
+    return orderDate.toDateString() === now.toDateString();
+  }).length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-revenue').textContent = formatPrice(revenue);
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-today').textContent = today;
+
+  // Update badge
+  const badge = document.getElementById('orders-badge');
+  if (active > 0) {
+    badge.textContent = active;
+    badge.style.display = 'inline';
+  }
+
+  // Show recent orders in dashboard
+  renderOrdersTable('dashboard-orders-wrap', allOrders.slice(0, 10));
+}
+
+/* ─────────────────────────────────────────────
+   LOAD ORDERS
+─────────────────────────────────────────────*/
+async function loadOrders() {
+  try {
+    const res = await fetch(`${API_BASE}/orders`, {
+      headers: { 'x-admin-password': adminPassword }
+    });
+    if (!res.ok) throw new Error('Failed');
+    allOrders = await res.json();
+    renderOrdersTable('all-orders-wrap', allOrders);
+    renderOrdersTable('dashboard-orders-wrap', allOrders.slice(0, 10));
+  } catch (err) {
+    document.getElementById('all-orders-wrap').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">No orders yet or backend offline</div>
+      </div>`;
+    document.getElementById('dashboard-orders-wrap').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">No orders yet</div>
+      </div>`;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   RENDER ORDERS TABLE
+─────────────────────────────────────────────*/
+function renderOrdersTable(containerId, orders) {
+  const container = document.getElementById(containerId);
+  if (!orders || orders.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">No orders yet</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${orders.map(order => `
+            <tr>
+              <td>
+                <div style="font-family:var(--font-head);font-weight:700;font-size:0.875rem">${order.customer.name}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">${order.customer.phone}</div>
+                <div style="font-size:0.72rem;color:var(--text-muted);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${order.customer.address}</div>
+              </td>
+              <td>
+                <div class="order-items-list">${order.items.map(i => `${i.emoji} ${i.name} ×${i.qty}`).join(', ')}</div>
+              </td>
+              <td>
+                <span style="font-family:var(--font-head);font-weight:700;color:var(--gold)">${formatPrice(order.total)}</span>
+              </td>
+              <td>
+                <span class="status-badge status-${order.status}">${order.status}</span>
+              </td>
+              <td style="color:var(--text-muted);font-size:0.78rem">
+                ${new Date(order.createdAt).toLocaleDateString('en-NG', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+              </td>
+              <td>
+                <select class="status-select" onchange="updateOrderStatus('${order._id}', this.value)">
+                  <option value="received" ${order.status==='received'?'selected':''}>Received</option>
+                  <option value="preparing" ${order.status==='preparing'?'selected':''}>Preparing</option>
+                  <option value="ready" ${order.status==='ready'?'selected':''}>Ready</option>
+                  <option value="delivered" ${order.status==='delivered'?'selected':''}>Delivered</option>
+                  <option value="cancelled" ${order.status==='cancelled'?'selected':''}>Cancelled</option>
+                </select>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* ─────────────────────────────────────────────
+   UPDATE ORDER STATUS
+─────────────────────────────────────────────*/
+async function updateOrderStatus(orderId, newStatus) {
+  try {
+    const res = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-password': adminPassword,
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    if (!res.ok) throw new Error('Failed');
+    showToast(`✅ Order updated to "${newStatus}"`, 'success');
+    loadOrders();
+  } catch (err) {
+    showToast('❌ Failed to update order', 'error');
+  }
+}
+
+/* ─────────────────────────────────────────────
+   LOAD MENU ITEMS
+─────────────────────────────────────────────*/
+async function loadMenuItems() {
+  try {
+    const res = await fetch(`${API_BASE}/menu/all`, {
+      headers: { 'x-admin-password': adminPassword }
+    });
+    if (!res.ok) throw new Error('Failed');
+    allMenuItems = await res.json();
+    renderMenuItems();
+  } catch (err) {
+    document.getElementById('menu-items-grid').innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">🍛</div>
+        <div class="empty-text">Could not load menu — is the backend running?</div>
+      </div>`;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   RENDER MENU ITEMS
+─────────────────────────────────────────────*/
+function renderMenuItems() {
+  const grid = document.getElementById('menu-items-grid');
+  const filtered = currentMenuFilter === 'all'
+    ? allMenuItems
+    : allMenuItems.filter(i => i.category === currentMenuFilter);
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🍛</div><div class="empty-text">No items found</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => `
+    <div class="menu-item-card" id="card-${item._id}">
+      ${item.image
+        ? `<img class="menu-item-img" src="${item.image}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+           <div class="menu-item-emoji-placeholder" style="display:none">${item.emoji}</div>`
+        : `<div class="menu-item-emoji-placeholder">${item.emoji}</div>`
+      }
+      <div class="menu-item-body">
+        <div class="menu-item-name">${item.emoji} ${item.name}</div>
+        <div class="menu-item-desc">${item.desc}</div>
+        <div class="menu-item-footer">
+          ${item.variants && item.variants.length > 0
+            ? `<div style="font-size:0.78rem;color:var(--text-muted)">Has variants</div>`
+            : `<input class="price-input" type="number"
+                id="price-${item._id}"
+                value="${item.price || ''}"
+                placeholder="Price (₦)"/>`
+          }
+          <div class="item-actions">
+            ${!item.variants || !item.variants.length
+              ? `<button class="save-price-btn" onclick="savePrice('${item._id}')">Save ₦</button>`
+              : ''
+            }
+            <label class="upload-img-btn">
+              📷 Photo
+              <input type="file" class="hidden-file-input"
+                accept="image/*"
+                onchange="uploadImage('${item._id}', this)"/>
+            </label>
+            <button class="toggle-avail-btn ${item.available ? 'available' : 'unavailable'}"
+              id="avail-${item._id}"
+              onclick="toggleAvailability('${item._id}', ${item.available})">
+              ${item.available ? '✅' : '❌'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ─────────────────────────────────────────────
+   FILTER MENU
+─────────────────────────────────────────────*/
+function filterMenu(category, btn) {
+  currentMenuFilter = category;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderMenuItems();
+}
+
+/* ─────────────────────────────────────────────
+   SAVE PRICE
+─────────────────────────────────────────────*/
+async function savePrice(itemId) {
+  const priceInput = document.getElementById(`price-${itemId}`);
+  const newPrice = parseInt(priceInput.value);
+
+  if (!newPrice || newPrice <= 0) {
+    showToast('⚠️ Enter a valid price', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/menu/${itemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-password': adminPassword,
+      },
+      body: JSON.stringify({ price: newPrice }),
+    });
+    if (!res.ok) throw new Error('Failed');
+    showToast('✅ Price updated!', 'success');
+    loadMenuItems();
+  } catch (err) {
+    showToast('❌ Failed to update price', 'error');
+  }
+}
+
+/* ─────────────────────────────────────────────
+   UPLOAD IMAGE
+─────────────────────────────────────────────*/
+async function uploadImage(itemId, input) {
+  if (!input.files || !input.files[0]) return;
+
+  const formData = new FormData();
+  formData.append('image', input.files[0]);
+
+  showToast('⏳ Uploading image...', '');
+
+  try {
+    const res = await fetch(`${API_BASE}/menu/${itemId}/image`, {
+      method: 'POST',
+      headers: { 'x-admin-password': adminPassword },
+      body: formData,
+    });
+    if (!res.ok) throw new Error('Failed');
+    showToast('✅ Image uploaded!', 'success');
+    loadMenuItems();
+  } catch (err) {
+    showToast('❌ Failed to upload image', 'error');
+  }
+}
+
+/* ─────────────────────────────────────────────
+   TOGGLE AVAILABILITY
+─────────────────────────────────────────────*/
+async function toggleAvailability(itemId, currentStatus) {
+  try {
+    const res = await fetch(`${API_BASE}/menu/${itemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-password': adminPassword,
+      },
+      body: JSON.stringify({ available: !currentStatus }),
+    });
+    if (!res.ok) throw new Error('Failed');
+    showToast(`✅ Item ${!currentStatus ? 'enabled' : 'disabled'}`, 'success');
+    loadMenuItems();
+  } catch (err) {
+    showToast('❌ Failed to update item', 'error');
+  }
+}
+
+/* ─────────────────────────────────────────────
+   HELPERS
+─────────────────────────────────────────────*/
+function formatPrice(n) {
+  return '₦' + n.toLocaleString('en-NG');
+}
+
+function showToast(msg, type = '') {
+  const toast = document.getElementById('admin-toast');
+  toast.textContent = msg;
+  toast.className = `show ${type}`;
+  setTimeout(() => { toast.className = type; }, 3000);
+}
+
+/* Auto-refresh orders every 30 seconds */
+setInterval(() => {
+  if (adminPassword) loadOrders();
+}, 30000);
+</script>
+</body>
+</html>
