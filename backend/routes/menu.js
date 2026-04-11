@@ -1,26 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const MenuItem = require('../models/MenuItem');
 const { verifyAdmin } = require('../middleware/auth');
 
-// ── Configure Cloudinary ─────────────────────────────────
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// ── Configure Multer with Cloudinary storage ─────────────
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'bellefood',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 800, height: 600, crop: 'fill' }],
-  },
 });
 
 const upload = multer({
@@ -158,27 +145,33 @@ router.put('/:id', verifyAdmin, async (req, res) => {
 // ─────────────────────────────────────────────
 // POST /api/menu/:id/image — Upload image for menu item (Admin)
 // ─────────────────────────────────────────────
-router.post('/:id/image', verifyAdmin, upload.single('image'), async (req, res) => {
+router.post('/:id/image', verifyAdmin, async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: 'No image uploaded' });
+    const { imageBase64 } = req.body;
 
-const imageUrl = req.file.path;
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'No image provided' });
+    }
+
+    const result = await cloudinary.uploader.upload(imageBase64, {
+      folder: 'bellefood',
+      transformation: [{ width: 800, height: 600, crop: 'fill' }],
+    });
 
     const item = await MenuItem.findByIdAndUpdate(
       req.params.id,
-      { image: imageUrl },
+      { image: result.secure_url },
       { new: true }
     );
 
     if (!item) return res.status(404).json({ error: 'Menu item not found' });
 
-    res.json({ message: 'Image uploaded successfully', image: imageUrl, item });
+    res.json({ message: 'Image uploaded successfully', image: result.secure_url, item });
   } catch (err) {
     console.error('Upload image error:', err);
     res.status(500).json({ error: 'Failed to upload image' });
   }
 });
-
 // ─────────────────────────────────────────────
 // POST /api/menu — Add new menu item (Admin)
 // ─────────────────────────────────────────────
