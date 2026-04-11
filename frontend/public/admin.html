@@ -880,23 +880,32 @@ async function savePrice(itemId) {
 async function uploadImage(itemId, input) {
   if (!input.files || !input.files[0]) return;
 
-  const formData = new FormData();
-  formData.append('image', input.files[0]);
-
+  const file = input.files[0];
   showToast('⏳ Uploading image...', '');
 
-  try {
-    const res = await fetch(`${API_BASE}/menu/${itemId}/image`, {
-      method: 'POST',
-      headers: { 'x-admin-password': adminPassword },
-      body: formData,
-    });
-    if (!res.ok) throw new Error('Failed');
-    showToast('✅ Image uploaded!', 'success');
-    loadMenuItems();
-  } catch (err) {
-    showToast('❌ Failed to upload image', 'error');
-  }
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64 = e.target.result;
+
+    try {
+      const res = await fetch(`${API_BASE}/menu/${itemId}/image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': adminPassword,
+        },
+        body: JSON.stringify({ imageBase64: base64 }),
+      });
+
+      if (!res.ok) throw new Error('Failed');
+      showToast('✅ Image uploaded!', 'success');
+      loadMenuItems();
+    } catch (err) {
+      showToast('❌ Failed to upload image', 'error');
+    }
+  };
+
+  reader.readAsDataURL(file);
 }
 
 /* ─────────────────────────────────────────────
