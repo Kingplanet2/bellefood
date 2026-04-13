@@ -16,7 +16,7 @@ app.use(cors({
     'http://localhost:5173',
      'http://localhost:3000',
       'https://bellefood-project.onrender.com',
-      'https://bellefood-blue.vercel.app'
+      'https://bellefood1.vercel.app'
     ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization' , 'x-admin-password'],
